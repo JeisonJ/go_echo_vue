@@ -8,14 +8,15 @@ import (
 	"database/sql"
 
 	// Funciones para resolver las rutas.
-	"github.com/jeisonj/go-echo-vue/handlers"
+	//"github.com/jeisonj/go-echo-vue/handlers"
+	"github.com/jeisonj/go_echo_vue/handlers"
 
 	// Driver para sqlite3
-	_"github.com/mattn/go-sqlite3"
+	_ "github.com/mattn/go-sqlite3"
 
 	// Echo framework
 	"github.com/labstack/echo"
-	_"github.com/labstack/echo/middleware"
+	_ "github.com/labstack/echo/middleware"
 )
 
 func main() {
@@ -30,18 +31,17 @@ func main() {
 	e := echo.New()
 
 	// Rutas.
-	e.File("/", 	   "public/index.html")
-	e.GET("/tasks", 	   handlers.GetTasks(database))
-	e.PUT("/tasks", 	   handlers.UpdateTask(database))
+	e.File("/", "public/index.html")
+	e.GET("/tasks", handlers.GetTasks(database))
+	e.PUT("/tasks", handlers.PutTask(database))
 	e.DELETE("/task/:id", handlers.DeleteTask(database))
 
 	// Iniciar el servidor web.
 	e.Logger.Fatal(e.Start(":8080"))
 }
 
-
 // Funciones para el manejo de la base de datos.
-func initDB(filepath string) *sql.DB  {
+func initDB(filepath string) *sql.DB {
 	database, err := sql.Open("sqlite3", filepath)
 
 	// Manejar un posible error.
@@ -58,7 +58,7 @@ func initDB(filepath string) *sql.DB  {
 	return database
 }
 
-func migrate(database *sql.DB)  {
+func migrate(database *sql.DB) {
 
 	sql := `
 		CREATE TABLE IF NOT EXISTS tasks(
@@ -69,7 +69,6 @@ func migrate(database *sql.DB)  {
 
 	// Ejecutando la sentencia SQL.
 	_, err := database.Exec(sql)
-
 
 	// Si ha ocurrido algun error al intentar ejecutar la sentencia anterior, salir.
 	if err != nil {

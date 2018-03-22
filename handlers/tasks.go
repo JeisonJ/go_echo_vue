@@ -5,24 +5,61 @@ import (
 	"net/http"
 	"strconv"
 
+	"github.com/jeisonj/go_echo_vue/models"
 	"github.com/labstack/echo"
 )
 
 type H map[string]interface{}
 
-func hello(c echo.Context) error  {
-	return c.String(http.StatusOK, "Hello, World!")
+// Estas funciones toman una conexion db como argumento, pero hay que
+// devolver el controlador adecuado usado por el enrutador. Por lo
+// tanto la funcion necesita implementar la interfaz (echo.HandlerFunc).
+// Logramos esto devolviendo una función anonima que coincide con la
+// firma de la interfaz.
+// Esta función ahora puede usar la conexion db y pasarla a nuestros metodos.
+
+// GetTasks endpoint
+func GetTasks(db *sql.DB) echo.HandlerFunc {
+	return func(c echo.Context) error {
+		return c.JSON(http.StatusOK, models.GetTasks(db))
+	}
 }
 
-func getTasks(c echo.Context) error  {
-	return c.JSON(200, "GET Tasks")
+// PutTask endpoit
+func PutTask(db *sql.DB) echo.HandlerFunc {
+	return func(c echo.Context) error {
+		// Instantiate a new task
+		var task models.Task
+		// Map imcoming JSON body to the new Task
+		c.Bind(&task)
+		// Add a task using our new model
+		id, err := models.PutTask(db, task.Name)
+		// Return a JSON response if successful
+		if err == nil {
+			return c.JSON(http.StatusCreated, H{
+				"created": id,
+			})
+			// Handle any errors
+		} else {
+			return err
+		}
+	}
 }
 
-func updateTask(c echo.Context) error  {
-	return c.JSON(200, "PUT Tasks")
+// DeleteTask endpoint
+func DeleteTask(db *sql.DB) echo.HandlerFunc {
+	return func(c echo.Context) error {
+		id, _ := strconv.Atoi(c.Param("id"))
+		// Use our new model to delete a task
+		_, err := models.DeleteTask(db, id)
+		// Return a JSON response on success
+		if err == nil {
+			return c.JSON(http.StatusOK, H{
+				"deleted": id,
+			})
+			// Handle errors
+		} else {
+			return err
+		}
+	}
 }
-
-func deleteTask(c echo.Context) error  {
-	return c.JSON(200, "DELETE Task " + c.Param("id"))
-}
-
