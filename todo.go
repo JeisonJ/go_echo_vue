@@ -1,14 +1,10 @@
 package main
 
 import (
-	// Paquete estandar http
-	"net/http"
-
 	// Paquete estandar para manejo de base de datos
 	"database/sql"
 
 	// Funciones para resolver las rutas.
-	//"github.com/jeisonj/go-echo-vue/handlers"
 	"github.com/jeisonj/go_echo_vue/handlers"
 
 	// Driver para sqlite3
@@ -34,7 +30,7 @@ func main() {
 	e.File("/", "public/index.html")
 	e.GET("/tasks", handlers.GetTasks(database))
 	e.PUT("/tasks", handlers.PutTask(database))
-	e.DELETE("/task/:id", handlers.DeleteTask(database))
+	e.DELETE("/tasks/:id", handlers.DeleteTask(database))
 
 	// Iniciar el servidor web.
 	e.Logger.Fatal(e.Start(":8080"))
